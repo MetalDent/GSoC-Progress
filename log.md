@@ -21,3 +21,12 @@ Got the selection results, did not work much.
 	- "hexdump" is useful to see what data is stored in which address
 - Common/procdefs.ld has information about the addresses for various sections
 - Verified the data (like apertus_text) and addresses from the .elf file, procdefs and the actual data
+- Side task:
+    - Removed `-monochrome` from the icons conversion script and opened a PR
+    
+### Day 5 : May 8, Friday
+- Side tasks:
+    - Removing `-monochrome` is not the ideal solution as it's making all the entries of Logo headers as "0x00"
+    - Tried various commands to perfect the conversion, finally BAndiT suggested some changes which worked well
+    - To further perfect the icons, refer today's [logs](http://irc.apertus.org/index.php?day=08&month=05&year=2020) which have some links and ideas suggested by him
+    - Maybe now we'll need to modify the DrawIcon() method as now the converted images are white with black background (or can invert the images)
