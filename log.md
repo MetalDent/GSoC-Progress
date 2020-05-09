@@ -33,3 +33,12 @@ Got the selection results, did not work much.
     - Bertl suggested some more improvements which I'll try tommorrow and create a makefile instead of the script
 - Established the remote connection to the server through ssh (note to self: don't forget the passphrase and fix the "A" key) 
 - Played around the remote setup, Bertl said beta and remote will be added by this weekend
+
+### Day 6 : May 9, Saturday
+- Did the image manipulation as suggested by Bertl:
+
+`sed -i "/#c2bfbc/ s/fill-opacity:1/fill-opacity:0/" ApertusLogo.svg`
+
+`convert ApertusLogo.svg -trim +repage ring.png`
+
+- Resultant image -> https://pasteboard.co/J7AS6lqM.png
