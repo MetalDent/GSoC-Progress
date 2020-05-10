@@ -42,3 +42,10 @@ Got the selection results, did not work much.
 `convert ApertusLogo.svg -trim +repage ring.png`
 
 - Resultant image -> https://pasteboard.co/J7AS6lqM.png
+
+### Day 7 : May 10, Sunday
+- Created the Makefile for the conversion script, took a little longer as I don't have much experience with that
+- Had to tweak the process a bit
+- Some changes/additions can be done:
+    - writing `+negate -negate` doesn't seem right, so need to improve that part
+    - add a feature in Makefile to automate the copying of data from xbm to header file
