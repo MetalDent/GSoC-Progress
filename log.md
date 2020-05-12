@@ -49,3 +49,8 @@ Got the selection results, did not work much.
 - Some changes/additions can be done:
     - writing `+negate -negate` doesn't seem right, so need to improve that part
     - add a feature in Makefile to automate the copying of data from xbm to header file
+    
+### Day 8 : May 11, Monday
+- Modifed and made the makefile much shorter as it was simply repeating the whole process for all the icons
+- Used `xbm:icon_name.h` in the conversion but that doesn't give a proper structure 
+- So finally decided to use `sed` to convert xbm to header file, if BAndiT wont like that then will think of some other method
