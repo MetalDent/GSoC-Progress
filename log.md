@@ -54,3 +54,13 @@ Got the selection results, did not work much.
 - Modifed and made the makefile much shorter as it was simply repeating the whole process for all the icons
 - Used `xbm:icon_name.h` in the conversion but that doesn't give a proper structure 
 - So finally decided to use `sed` to convert xbm to header file, if BAndiT wont like that then will think of some other method
+
+### Days 9-11 : May 12-14 Tuesday-Thursday
+- Worked on the makefile
+- Modified the structure of the sample.h
+
+### Days 12-13 : May 15 & 16 Friday, Saturday
+- Successfully connected with the remote-remote!
+- Bertl helped with that as I didn't have experience with ssh
+- Modified the ImageButton size and dimensions
+- Also modified SetButton() in ButtonBar
