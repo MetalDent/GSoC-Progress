@@ -1,0 +1,11 @@
+metal_dent: btw, if you just want to 'reset' the board not program it
+you can simply run the pic32prog -d pickit2:04d8:0033:A without a hex file
+or, if you want to try a power cycle, you can do 
+/usr/local/script/remote_a_ctrl.sh cycle
+(with sudo)
+
+minicom -con ACM0
+
+pic32prog /tmp/AXIOM_Remote_Bootloader.hex -d pickit2:04d8:0033:A
+
+pic32prog -d pickit2:04d8:0033:A -e

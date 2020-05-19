@@ -64,3 +64,11 @@ Got the selection results, did not work much.
 - Bertl helped with that as I didn't have experience with ssh
 - Modified the ImageButton size and dimensions
 - Also modified SetButton() in ButtonBar
+
+### Days 14-15 : May 17, 18 Sunday, Monday
+- Flashed firmware and bootloader in the remote setup
+- Trying to use minicom but the setup doesn't have working USB I think, so we'll discuss today (Monday) about it
+- minicom worked! (see notes.txt for relevant commands/info)
+
+### Day 16 : May 19 Tuesday
+- Started working for an ImageButton with image and text, see today's [logs](http://irc.apertus.org/index.php?day=19&month=05&year=2020)
