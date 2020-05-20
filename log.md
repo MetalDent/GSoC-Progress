@@ -70,5 +70,11 @@ Got the selection results, did not work much.
 - Trying to use minicom but the setup doesn't have working USB I think, so we'll discuss today (Monday) about it
 - minicom worked! (see notes.txt for relevant commands/info)
 
-### Day 16 : May 19 Tuesday
+### Day 16 : May 19, Tuesday
 - Started working for an ImageButton with image and text, see today's [logs](http://irc.apertus.org/index.php?day=19&month=05&year=2020)
+- Tried making image on the left half and text on the right half but Sebastian suggested a better approach (I'm not entirely sure about that but trying to implement that)
+
+### Day 17 : May 20, Wednesday
+- Remote B is working now but minicom part is not yet configured, reminded Bertl about the remote camera access
+- Have written some pointers about the remote setup in notes.txt, **please refer that if you forget anything**
+- Worked on the ImageButton but something's wrong, trying to figure out
