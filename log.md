@@ -78,3 +78,8 @@ Got the selection results, did not work much.
 - Remote B is working now but minicom part is not yet configured, reminded Bertl about the remote camera access
 - Have written some pointers about the remote setup in notes.txt, **please refer that if you forget anything**
 - Worked on the ImageButton but something's wrong, trying to figure out
+
+### Day 18 : May 21, Thursday
+- Fnished with the image + text functionality of ImageButton, my calculations were correct but I was aligning the text in the center rather than to the left
+- [Before](https://pasteboard.co/J97QZWU.png) and [After](https://pasteboard.co/J9nAO4t.png)
+- Claimed [CheckBox task](https://lab.apertus.org/T1193)
