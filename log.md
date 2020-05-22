@@ -83,3 +83,6 @@ Got the selection results, did not work much.
 - Fnished with the image + text functionality of ImageButton, my calculations were correct but I was aligning the text in the center rather than to the left
 - [Before](https://pasteboard.co/J97QZWU.png) and [After](https://pasteboard.co/J9nAO4t.png)
 - Claimed [CheckBox task](https://lab.apertus.org/T1193)
+
+### Day 19 : May 22, Friday
+- Worked on PR[#15](https://github.com/apertus-open-source-cinema/AXIOM-Remote/pull/15), check it for details

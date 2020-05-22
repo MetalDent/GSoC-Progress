@@ -11,7 +11,7 @@ pic32prog /tmp/AXIOM_Remote_Bootloader.hex -d pickit2:04d8:0033:A
 pic32prog -d pickit2:04d8:0033:A -e
 
 start remote -> sudo /usr/local/script/remote_a_ctrl.sh on
-start pickit -> sudo /usr/local/script/pickit_b_ctrl.sh on
+start pickit -> sudo /usr/local/script/pickit_a_ctrl.sh on
 
 after using please turn them "off"
 
