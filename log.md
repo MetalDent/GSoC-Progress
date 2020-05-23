@@ -86,3 +86,7 @@ Got the selection results, did not work much.
 
 ### Day 19 : May 22, Friday
 - Worked on PR[#15](https://github.com/apertus-open-source-cinema/AXIOM-Remote/pull/15), check it for details
+
+### Day 20 : May 23, Saturday
+- Solved some conflicts for PR[#17](https://github.com/apertus-open-source-cinema/AXIOM-Remote/pull/17/)
+- Didn't work much as I'm getting my migraines back
