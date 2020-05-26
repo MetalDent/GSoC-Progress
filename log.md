@@ -94,3 +94,10 @@ Got the selection results, did not work much.
 ### Day 21 : May 24, Sunday
 - Worked on [T1206](https://lab.apertus.org/T1206)
 - Created PR for that
+
+### Day 22 : May 25, Monday
+- Created PR[#19](https://github.com/apertus-open-source-cinema/AXIOM-Remote/pull/19), a small path fix
+- Started working on the Checkbox task [T1193](https://lab.apertus.org/T1193)
+    - Got the checkbox images from Flaticon and converted them to the headers
+    - Created Checkbox class
+- Bertl explained the LVP of PIC16 in detail, see LVP_notes.txt or #gsoc2020 logs

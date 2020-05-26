@@ -1,0 +1,437 @@
+To enter Beta: (we did on Beta_A)
+1. enter zbox
+2. ssh to beta: ssh operator@beta-a
+3. open screen: sudo screen -x ICSP
+
+Logs:
+
+Bertl
+metal_dent: you still around?
+metal_dent
+umm.. yeah
+Bertl
+okay, got a few more minutes before bedtime?
+metal_dent
+yes, sure!
+Bertl
+I was just starting to explain ICSP/LVP to bluez_
+and I thought that might be interesting for you as well :)
+metal_dent
+yes, of course, he just told me :) 
+Bertl
+good, so we can even do that with some examples on the Beta
+first, in both cases, Beta Mainboard and Remote, it is the very same PIC we are talking about
+I started with explaining that each PIC family has their own set of commands and steps, but they are all very simple and reasonably similar between different families
+they are all labeled ICSP though, which often leads to the confusion that this is one standartized protocol
+while it is more like connecting a mobile phone via USB
+i.e. each phone will behave differently if you want to exchange data or maybe even update the firmware there
+ICSP is just the specification for the low level serial protocol used
+it is very simple and uses two pins for data and clock and a third pin as reset (or programming voltage for high voltage programming)
+all our PICs are designed to use LVP (low voltage programming) though, so for us it is always a reset
+the PIC/family in question here is the PIC16(L)F171X
+(specifically the PIC16F1718)
+https://www.microchip.com/wwwproducts/en/PIC16F1718
+
+404 | Microchip Technology
+Microchip Technology Inc. is a leading provider of microcontroller, mixed-signal, analog and Flash-IP solutions, providing low-risk product development, lower total system cost and faster time to market for thousands of diverse customer applications worldwide. Microchip offers outstanding technical support along with dependable delivery and quality.
+the relevant documentation for ICSP is always under Documents > 'Programming Specifications'
+in this case: http://ww1.microchip.com/downloads/en/DeviceDoc/40001714C.pdf
+as you can see in Table 1-1 the pins during programming are ICSPCLK, ICSPDAT and #MCLR (plus the obvious power)
+the overscore on the MCLR, in IRC (and often in schematics too) is written as #MCLR or MCLR_n
+which means that the logic is inverted, i.e. it is active low
+MCLR IIRC stands for Master CLeaR
+(which is a fancy name for reset :)
+bluez_
+Bertl
+MCLR IIRC stands for Master CLeaR
+ah, makes sense now :p
+Bertl
+note that the #MCLR can be treated as a normal reset pin, so the device will simply reset if you pull #MCLR low (inverted logic) and start like it was powered on after #MCLR goes high again
+but during that time, i.e. while #MCLR is low (and the device in reset)
+a special 'magic' sequence can be sent to the device which will put it into programming mode
+for the PIC microcontrollers, this will always be 'MCHP' (which stands for microchip :)
+metal_dent
+a special 'magic' sequence can be sent to the device which will put it into programming mode
+
+the magic number?
+
+Bertl
+MCHP in ASCII covnerted to a 32 bit sequence
+with the least significant bit of the least significant nibble shifted in first
+BAndiT1983
+metal_dent: try to use this for the magic number -> http://string-functions.com/hex-string.aspx
+
+Hex to String Calculator - Programming Tool | String-functions
+Use our Hex to String Calculator to easily convert Hex/Hexadecimal text to a string of text. Check out our free online string manipulation tools for programmers!
+Bertl
+what is it with you folks and those online converters :)
+metal_dent
+BAndiT1983: thanks! (you were really eager for me to learn about the magic number :D )
+Bertl
+note that the binary sequence is listed in the Programming Specification in detail
+BAndiT1983
+as soon as the magic number was sent over to the PIC16, it has began to give me the right data, was exciting
+Bertl
+(section 4.2 LVP programming)
+BAndiT1983
+yep, docs are important, but also analysis has to be learned to be ready to tackle things which are not described well or so
+Bertl
+note that while the 'magic sequence' stays the same, the order and padding can change depending on the specific PIC
+so always double check those when you are working with a new device
+so, once the LVP key sequence has been transmitted, you can use a number of commands to work with the device memory
+Table 4-1 explains the commands this specific PIC family understands
+but we will get to that via some examples shortly
+(but first, I need to take a short break, about 15min for something else)
+use the time to check the datasheet
+metal_dent
+okay
+bluez_
+sure...doing that
+Bertl
+back, sorry for the interruption :)
+so, back to the serial protocol known as ICSP (In Circuit Serial Programming)
+commands can have arguments (i.e. data sent to the PIC) and they can have 'results' i.e. data returned from the PIC
+so for example the increment and reset address commands (06h and 16h) do not take any arguments and do not return any data
+they only have side-effects
+i.e. the 'address pointer/counter' is changed
+Load Configuration and Load Data (00h and 02h) send data from the programmer to the PIC
+while Read Data (04h) returns data from the PIC
+now let's look at the specific interface on the Beta as an example
+we have two FPGA IO pins connected to a level converter which creates an I2C bus on the power board
+this bus is then 'routed' or 'muxed' by either an I2C mux (PCA9540 or PCA9543) or an analog switch (TS3A4751) to the east and west side connector (PB-SE and PB-NW)
+where it again passes a level converter (GTL2002)
+the connection then is routed on the main board to the PGC and PGD pins of the respective RFW and RFE PICs
+so how do we speak ICSP on this connection?
+we've simply implemented an UART to ICSP bridge in the FPGA which is then used by a python script to send the proper commands
+let's move to beta-a into a screen to take a look
+i.e. open up a terminal with let's say 100x32 characters
+connect to the zbox and ssh to beta-a (either as root or become root)
+there run 'screen -x ICSP'
+bluez_
+alright
+done
+Bertl
+metal_dent: ping?
+metal_dent
+i guess i did too
+Bertl
+okay, great, so this is a share screen session
+i.e. we can all type and see what is going on
+bluez_
+awesome :)
+Bertl
+note, you want to size your terminal to match the screen size
+otherwise you will 'miss' some parts (if your terminal is too small)
+too large is not a problem, you will see the area of the screen
+so the first step is to get the proper gateware loaded
+metal_dent
+okay
+Bertl
+on the new firmware this is done with:
+bluez_
+got it!
+Bertl
+/opt/axiom-firmware/software/bringup-scripts/prep_icsp.sh
+(pathes will get simpler in the future with some environment)
+as you can see on the shared screen, this outputs a lot of data
+but this is just a side effect of the GPIO initialization done in the script
+that's required so that the PICs and MachXO2s have power and the #MCLR pins are set correctly
+if you look over the table which combines information from four different 16bit GPIO extenders
+you can probably spot A_#RST and B_#RST in the middle right section
+bluez_
+yes yes
+Bertl
+the combo on the left of each of them [22a4] is to identify the GPIO port
+the 22 means the GPIO extender at address 0x22
+and 'a4' means port A bit 4
+respectively the [23a4] stands for GPIO extender at address 0x23, port A, bit 4
+the extenders are MCP23018 in case you are interested
+and they can be found on the GPIO I2C bus
+let's look at that one on the screen
+so this is a short dump of I2C bus '0' which has all the GPIO extenders, voltage/current sensing, eeprom, etc on the power board
+bluez_ already knows what the 'UU' means, right?
+bluez_
+yes yes... address currently is use by a linux module
+or driver
+Bertl
+yeah, the device was 'claimed' by a linux kernel driver, in this case it is a temperature sensor
+the 0x20 - 0x23 are the GPIOs you've seen in the dump above
+bluez_
+wait i got disconnected... let me reconnect
+guess there is a timeout or something
+yea my ssh timed out
+Bertl
+some ssh clients have timeouts set, but it could as well be a (network) routing problem
+e.g. some ip address changed or the network route changed, etc
+bluez_
+mine does have a timout...so i can remove that from my side? will do that then
+Bertl
+yes, ssh idle timeout should be easy to change
+so, back to the A_#RST and B_#RST and this time the strange word on the right of them
+bluez_
+alright...
+Bertl
+O0+0^ in both cases
+this represents the current state of the GPIO, specifically whether it is configured as output (O) or input (I)
+wheter a pullup is enable '^' or not ' '
+and what the set output value as well as the detected input values are
+metal_dent
+what is pullup?
+Bertl
+in short O0+0^ means: configured as output with pullup on, set to '0' (or low) and we also read back a '0' (low)
+a pullup or pulldown is a resistor, usually of higher resistance, to either VCC/VDD (up) or GND (down)
+which ensures that a signal line is not 'floating' and thus has a defined value
+metal_dent
+okay
+Bertl
+the GPIO extenders used here are open drain
+http://ww1.microchip.com/downloads/en/devicedoc/22103a.pdf
+so they only connect the signal to GND when the output is '0' and leave them floating on an output of '1'
+so a pullup is required here to make a '1' work :)
+bluez_
+ah, nice
+
+Bertl
+okay, finally the A_#RST and B_#RST are connected to the 'A' and 'B' #MCLR pins on the PICs
+back then, when we defined the power board, we decided to name the two busses A and B
+in hindsight the more consistent naming would have been W and E
+anyway, to clear things up here, we can now take a look at the AB-bus before we get to the mux
+note: I changed the '0' on the i2cdetect command to '2'
+what we see now is a single device on bus '2' aka "AB"
+which is the address of an I2C multiplexor (MUX)
+which is currently configured to none of the A/B bus sections
+we could use I2C commands to change that, but there is a script for that as well
+the script also takes care of hardware abstraction
+i.e. on Betas where we have the analog switch, it configures the bus connections via that part
+and on those with MUXes (0x30 or 0x70) it selects the bus section via I2C
+the script also gives some clues about the PIC in question :)
+selecting RFW [bus A]
+i.e. we are connected to the PIC associated with RFW
+looking at the bus again, we can see the addresses the PIC occupies
+now, so far this all has been I2C, no ICSP involved
+but the gateware used on the Zynq allows us to 'switch' the two pins from I2C into ICSP mode
+and there we can send the commands understood by the UART to ICSP bridge
+the simplest script here is one to dump the PIC ids
+now the reason why I explained about the MUX and the I2C addresses as well as the GPIO extenders first is that now we are putting all those parts together
+the output from the simple:
+/opt/axiom-firmware/software/bringup-scripts/icsp_id.py A
+shows us a number of different aspects including the actual data of interest
+let's go through the script (and simplify it further for demonstration purposes) to get an idea what's going on here
+let's first remove all the parts we do not really need here
+so much simpler example, almost identical output :)
+what we removed here is all the code which deals with the mux
+handles different hardware versions and allows us to select which bus we want to see
+it is basically the 'essence' of the ICSP PIC communication
+as you can see, we first open a 'serial device' (/dev/ttyPS1)
+which is a hardware UART present in the PS (processing system) of the Zynq
+this allows us to connect to the FPGA fabric via normal serial commands
+the gateware then interprets those commands and controls the two pins (either I2C SDA/SCL or ICSP PGD/PGC)
+we also need SMBus(0) to control the #MCLR
+now the comments are a little confusing here as they talk about MCLR, but actually go to the UART bridge which has no control over #MCLR
+but we need to let the UART/ICSP bridge know what the status of the #MCLR is
+why? well mostly historical reasons
+when designed, the bridge was supposed to have control over all three pins (actually four)
+but to reduce the amount of Zynq IOs we need for this, both MCLR were moved to the GPIO extenders
+the bridge still needs the commands for proper state transitions though
+so, first we assume #MCLR is high and everything is running
+(which we already know is a wrong assumption, as both #MCLR are low after initialization)
+here a short input:
+preetimenghwani[> I uploaded the code on zynq. now how to know that it is programmed successfully
+preetimenghwani: well, you can see that by the fact that the Beta now is not responding anymore :)
+now why did that happen, i.e is your gateware bad and the result is a lockup on the Beta?
+probably not, but it is the result of bad coordination :)
+i.e. we were working on the same beta with a different gateware (ICSP) to program the PICs
+the fact that the gateware changed while we are doing that results in an abrupt change in the PS-PL interface, which in turn usually locks up the Zynq
+(basically a design flaw in the hardware)
+so what can we do to prevent that in the future:
+(any ideas?)
+
+bluez_
+coordinate :/
+Bertl
+indeed .. now what can we do to fix this?
+preetimenghwani
+I am really sorry!
+Bertl
+all we can do now is to reboot the Beta
+bluez_
+will you have to reboot it manually?
+Bertl
+note: there will be scripts for that as well
+bluez_
+ok ok
+Bertl
+done, Beta A will boot now
+preetimenghwani
+will take care from next time :(
+Bertl
+preetimenghwani: have you configured your access for beta-b already?
+preetimenghwani
+yes!
+Bertl
+excellent, so let's move you to beta-b for now
+preetimenghwani
+oh sorry its beta-a
+Bertl
+so same procedure for beta-b
+and there you can work for now because nobody else seems to be using it
+preetimenghwani
+okay moving on to beta-b right now!
+Bertl
+so, beta-a has rebooted in the meantime and I created the screen again
+i.e. please connect and attach as before
+so, short info on how to check the FPGA
+cat /sys/class/fpga_manager/fpga0/state
+will give some information on whether the bitstream has been loaded or not
+vup: any idea what the /sys/class/fpga_manager/fpga0/status does?
+the 'state' entry will report 'unknown' when the FPGA is not initialized
+and will give 'operating' when it is running/active
+I don't know whether there are more states or not
+bluez_
+ok ok
+Bertl
+this is now the Linux mainline driver, before we had the Xilinx drive which simply reported the 'done' pin
+*driver
+vup
+Bertl: re state: see https://www.kernel.org/doc/html/latest/driver-api/fpga/fpga-mgr.html#c.fpga_mgr_states
+FPGA Manager — The Linux Kernel documentation
+Docs » The Linux driver implementer’s API guide » FPGA Subsystem » FPGA Manager View page source FPGA Manager ¶ Overview ¶ The FPGA manager core exports a set of functions for programming an FPGA with an image. The API is manufacturer agnostic. All manufacturer specifics are hidden away in a low level driver which registers a set of ops with the core. The FPGA image data itself is very manufacturer specific, but for our purposes it’s just binary data. The FPGA manager core won’t…
+on the same page it says: "status: returns status of the FPGA, including reconfiguration error code"
+Bertl
+well, that might be broken then
+# cat /sys/class/fpga_manager/fpga0/status 
+cat: /sys/class/fpga_manager/fpga0/status: No such file or directory
+# ll /sys/class/fpga_manager/fpga0/status
+vup
+yep 
+Bertl
+-r--r--r-- 1 root root 4.0K May 25 20:59 /sys/class/fpga_manager/fpga0/status
+okay, moving on with the ICSP part :)
+vup
+seems like it is just not implemented by the driver: https://github.com/torvalds/linux/blob/9cb1fd0efd195590b828b9b865421ad345a4a145/drivers/fpga/zynq-fpga.c#L545
+
+torvalds/linux - GitHub
+Linux kernel source tree. Contribute to torvalds/linux development by creating an account on GitHub.
+Bertl
+strange thing to keep the entry around though
+anyway ...
+so, we are back at taking #MCL low
+in line 26 and 27 we change the GPIO pin for #MCLR to low
+then we update the 'state' for the ICSP bridge to low as well by sending 'L' over the serial
+(this is one of the bridge commands)
+ah, I see I forgot to remote the '#' command
+we do not need that for this simple example
+so the next step is to send the magic sequence
+which is done via icsp_enter_lvp(ser)
+maybe let's look at that right now to see what is going on there
+so, as we can see, this sends a command sequence '[^]' to the bridge
+this is basically a sequence of three commands
+the first disables 'echo back' '[' the second sends the LVP sequence '^' and the third one re-enables echo back ']'
+so after sending the magic key sequence, we now send our first command
+which again is a sequence of commands to the bridge
+[X0=]
+bluez_
+what is lvp sequence '^' for?
+Bertl
+I have to lookup what the 'X' means now :)
+bluez_
+i mean we need to send the magic sequence right...?
+Bertl
+http://vserver.13thfloor.at/Stuff/AXIOM/BETA/icsp_test/icsp.vhd
+the '^' UART command is translated into ICSP_CMD_LVP
+which then simply sends the ICSP_LVP_KEY out
+bluez_
+i see...
+Bertl
+I'm not sure why I really implemented a separate command for that, but back then it made a lot of sense :)
+if I would rewrite the bridge today, I would make generic commands to send arbitrary sequences (up to probably 64bit or so)
+bluez_
+seems like a good practice anyway :/
+Bertl
+so let's see what the 'X' does in http://vserver.13thfloor.at/Stuff/AXIOM/BETA/icsp_test/top.vhd
+bluez_
+Bertl
+if I would rewrite the bridge today, I would make generic commands to send arbitrary sequences (up to probably 64bit or so)
+this here seems simpler though ':D
+Bertl
+so this actually sends the 'load config' command
+and the '0=' afterwards loads the required data
+i.e. '0' is the data in hex and '=' sends it to the PIC
+the brackets '[' and ']' again prevent any echo back
+then we finally retrieve the configuration data (17 butes here) with:
+conf = icsp_read_data(ser, 0x11)
+as you can (probably) see, the icsp_read_data() function basically reads the selected amount of bytes
+this is done in a somewhat complicated way (with blocks) because there are some bugs in the serial device (hardware) implemented in the Zynq
+(could also be driver issues, never got to investigate this in detail)
+the commands used for that though are very similar to the X0=
+instead of 'X' we use 'R' to read data
+(i.e. send the command to read data)
+then instead of '=' we have '?' to retrieve the data
+and after each retrieved data word, we use '+' to increment the address
+all of those get mapped by the bridge to the corresponding actions
+i.e. send out command 00h or 04h then clock out/in the data word
+send command 06h to increment address, etc
+the resulting data arrives via UART and is put into an array of bytes
+s/bytes/words/
+the PIC uses 14 bit words
+the resulting array is then split and presented to the user as output
+what the words mean is described in the Programming Specification in Figure 3-3
+finally we take #MCLR high again via the GPIO extender
+as we can see, the PIC responds with ID 0x305B and rev 0x2000
+table 3-1 gives us detailed information what those mean
+i.e. that we indeed have a PIC16F1718 here :)
+now as you can imagine, with a more complex sequence of commands, which I will not go into detail today, it is possible to program the flash memory of the PIC as well as the configuration bits
+the script which will do that is aptly named icsp_prog.py
+and it requires an intel-hex format file with the firmware data for the PIC
+we can look into how to get that and how to actually program the PICs another time if you like to
+hope this gives some idea how ICSP is used and how everything works.
+any questions?
+bluez_
+Bertl
+we can look into how to get that and how to actually program the PICs another time if you like to
+yeah that would be nice
+we would also probably need to look things on our own to digest all these ':D
+Bertl
+I can imagine :)
+bluez_
+Bertl
+hope this gives some idea how ICSP is used and how everything works.
+very detailed though! thanks!!
+i didnt even know about the whole UART to i2c bridge part
+icsp*
+metal_dent
+yes, thank you, the explanation was very helpful (and very detailed indeed :) 
+Bertl
+was a compromise between low level ICSP (which metal_dent will need) and 'here are the scripts to do it' :)
+bluez_
+indeed xD
+so i'll go through it again and ask questions later...
+Bertl
+fine with me
+bluez_
+alright... should probably head to bed now... quite late here...
+Bertl
+have a good night then
+metal_dent
+me too, way past my usual bed time ':D ; Good night!! 
+bluez_
+again thanks a lot for giving so much time! gunnite...
+Bertl
+metal_dent: sorry for that! :)
+bluez_
+metal_dent
+me too, way past my usual bed time ':D ; Good night!! 
+yeah xD
+metal_dent
+metal_dent: sorry for that! :)
+
+nah, it was worth it, thank you again :)
+
+Bertl
+you're welcome!
+BAndiT1983
+Bertl: the endianess was also one of the main things to take care of when HEX file data has to be prepared to be sent to the bootloader, it's regarding your message way back in the logs
+have still my prototype for sending HEX to bootloader or retrieving other data laso, maybe metal_dent can reuse it and continue the development
+*also
+
+
