@@ -101,3 +101,17 @@ Got the selection results, did not work much.
     - Got the checkbox images from Flaticon and converted them to the headers
     - Created Checkbox class
 - Bertl explained the LVP of PIC16 in detail, see LVP_notes.txt or #gsoc2020 logs
+
+### Day 22-27 : May 26-31, Tuesday-Sunday
+- Documented and practiced again everything Bertl explained on Monday
+- Compared remote_e.asm and remote_w.asm hex files with Bootloader
+- Took some snapshots of the remote setup when:
+    - BL was flashed
+    - BL was not flashed
+    - Remote was switched off
+- Read about ICSP writing, the flow charts in PIC16 pdf are helpful and show what I need to do
+
+## Coding Phase I:
+
+### Day 1,2 : June 1-2, Monday, Tuesday
+- Started coding and I'm keep refering to the flow charts

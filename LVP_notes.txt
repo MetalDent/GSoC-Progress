@@ -2,6 +2,8 @@ To enter Beta: (we did on Beta_A)
 1. enter zbox
 2. ssh to beta: ssh operator@beta-a
 3. open screen: sudo screen -x ICSP
+4. i2c bus: i2cdetect -y -a -r 2 (for bus2)
+5. icsp methods are in file "/opt/axiom-firmware/software/scripts/icsp.py"
 
 Logs:
 

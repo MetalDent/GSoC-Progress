@@ -17,3 +17,13 @@ after using please turn them "off"
 
 RemoteA is PIC32MZ2048ECG (v0.9)
 RemoteB is PIC32MZ2048EFH (v0.14)
+
+To tke snapshot with remote cam: "ffmpeg -i tcp://localhost:7777 -frames 1 -y snap.jpg"
+Then move to local: "ssh -p 2222 metal_dent@remote.13thfloor.at -i apertus_remote_new 'cat /home/metal_dent/flash.jpg' > /home/metaldent/remote_flash.jpg"
+
+To check the status of remote devices:
+sudo /usr/local/script/status.sh 
+
+To see live video:
+ssh -p 2222 metal_dent@remote.13thfloor.at -L 8888:localhost:8888 -i apertus_remote_new 
+vlc tcp://localhost:8888
