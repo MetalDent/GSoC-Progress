@@ -27,3 +27,9 @@ sudo /usr/local/script/status.sh
 To see live video:
 ssh -p 2222 metal_dent@remote.13thfloor.at -L 8888:localhost:8888 -i apertus_remote_new 
 vlc tcp://localhost:8888
+
+To move from remote to local:
+scp -i apertus_remote_new -r -P 2222 metal_dent@remote.13thfloor.at:/path/to/file/in/remote /path/in/local
+
+To move from local to remote:
+scp -i apertus_remote_new -P 2222 /path/in/local metal_dent@remote.13thfloor.at:/path/to/file/in/remote

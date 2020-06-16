@@ -115,3 +115,4 @@ Got the selection results, did not work much.
 
 ### Day 1,2 : June 1-2, Monday, Tuesday
 - Started coding and I'm keep refering to the flow charts
+- Helped Sebastian document the remote commands
